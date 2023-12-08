@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="beluga.serverprint.dienstprovider">
+	 <implementation class="providerImpl.CupsProvImpl" />
+	 <service>
+     <provide interface="de.schoenbeck.serverprint.printProvider.PrinterLookup"/>
+     <provide interface="de.schoenbeck.serverprint.printProvider.Printrun"/>
+      <provide interface="de.schoenbeck.serverprint.printProvider.AttributeLookup"/>
+     </service>
+     <property name="service.ranking" type="Integer" value="100"/>
+</scr:component>
