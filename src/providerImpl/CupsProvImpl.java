@@ -35,12 +35,10 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Language;
 
-import de.lohndirekt.print.IppPrintService;
 import de.lohndirekt.print.IppPrintServiceLookup;
 import de.lohndirekt.print.attribute.IppAttributeName;
 import de.lohndirekt.print.attribute.ipp.jobtempl.LdMediaTray;
 import de.lohndirekt.print.attribute.ipp.printerdesc.supported.MediaSourceSupported;
-import de.schoenbeck.serverprint.helper.EnumSubtitute;
 import de.schoenbeck.serverprint.model.I_sbsp_attributename;
 import de.schoenbeck.serverprint.model.I_sbsp_attributevalue;
 import de.schoenbeck.serverprint.model.MPrinter;
@@ -61,7 +59,11 @@ public class CupsProvImpl implements Printrun, PrinterLookup, AttributeLookup {
 //		PrintService[] services = IppPrintServiceLookup.lookupPrintServices(null, null);
 		PrintService[] services;
 		try {
-			services = new IppPrintServiceLookup(new URI(prov.getprinter_uri()), prov.getprinter_username(), prov.getprinter_password()).getPrintServices();
+			String uri = prov.getprinter_uri();
+			String username = prov.getprinter_username() == null ? "" : prov.getprinter_username();
+			String password = prov.getprinter_password() == null ? "" : prov.getprinter_password();
+			services = new IppPrintServiceLookup(new URI(uri), username, password)
+					.getPrintServices();
 		} catch (URISyntaxException e) {
 			throw new AdempiereException("Possibly malformed URL - " + prov.getprinter_uri(), e);
 		}
@@ -73,6 +75,7 @@ public class CupsProvImpl implements Printrun, PrinterLookup, AttributeLookup {
 			printer.setName(s.getName());
 			printer.setPrinterNameIpp(s.getName());
 			printer.setprinter_uri(prov.getprinter_uri());
+			printer.setsbsp_printerprovider_ID(provider_id);
 			
 			rtn.add(printer);
 		}
@@ -86,7 +89,20 @@ public class CupsProvImpl implements Printrun, PrinterLookup, AttributeLookup {
 				DocFlavor.INPUT_STREAM.PDF,
 				new HashDocAttributeSet());
 		
-		PrintService service = new IppPrintService(new URI(conf.provider.getprinter_uri() + "/printers/" + conf.printer.getPrinterNameIpp()));
+		PrintService service = null;//new IppPrintService(new URI(conf.provider.getprinter_uri() + "/printers/" + conf.printer.getPrinterNameIpp()));
+		PrintService[] services = new IppPrintServiceLookup(
+						new URI(conf.provider.getprinter_uri()),
+						conf.provider.getprinter_username() == null ? "" : conf.provider.getprinter_username(),
+						conf.provider.getprinter_password() == null ? "" : conf.provider.getprinter_password()
+					).getPrintServices();
+		if (services != null && services.length > 0)
+			for (PrintService s : services) {
+				if (s.getName().equals(conf.printer.getPrinterNameIpp())) {
+					service = s;
+					break;
+				}
+			}
+		
 		var job = service.createPrintJob();
 		
 		PrintRequestAttributeSet prats = getAttributes(service, conf.printerconfig_id);	
