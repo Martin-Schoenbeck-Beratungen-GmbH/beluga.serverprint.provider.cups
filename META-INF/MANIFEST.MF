@@ -4,7 +4,7 @@ Bundle-Name: beluga.serverprint.cups
 Bundle-SymbolicName: beluga.serverprint.provider.cups
 Bundle-Version: 1.0.0.qualifier
 Service-Component: OSGI-INF/*.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.adempiere.base;bundle-version="5.1.0",
  org.adempiere.plugin.utils;bundle-version="5.1.0",
  beluga.serverprint;bundle-version="5.0.0"
